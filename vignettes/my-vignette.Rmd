@@ -71,4 +71,11 @@ tweet_lda <- LDA(tweet_dtm, k = 6, method = "VEM")
 tweet_lda
 ```
 
+# Visualizing beta values 
+
+The results we get from topic modeling contains a wealth of information. The two most important variables in this model are beta and gamma. 
+
+In a topic model, a topic contains a list of words. Each word has a beta value assigned by the LDA algorithm. When a word has a higher beta score, that word matters more to that topic. In our example, when a tweet contain such word, it is more likely to be categorized into the affiliated cluster.
+
+To extract the information of beta value, we use the tidy() function.
 
