@@ -1,10 +1,19 @@
 Package: TopicModelling
 Type: Package
-Title: Text Mining: Topic Modelling 
-Version: 0.1.0
-Author: ...
-Maintainer: The package maintainer <yourself@somewhere.net>
-Description: This package allows the probabiilstic modelling of term frequency occurences in documents...
+Title: Text Mining: LDA Topic Modelling 
+Version: 0.0.1.0
+Authors@R: c(person("Alana", "Pengilley",
+           role = c("aut", "cre"),
+           email = "apengilley@utexas.edu", 
+           comment = c(ORCID = "0000-0002-9783-6052")),
+           person("Josh", "Xiao",
+           role = c("aut", "cre"),
+           email = "wjxiao@utexas.edu"),
+           person("Callen", "Inman",
+           role = c("aut", "cre"),
+           email = "callen.inman@utexas.edu")
+Maintainer: Alana Pengilley <apengilley@utexas.edu>
+Description: This package allows the probabilistic modelling of term frequency occurences in documents using Latent Dirichlet Allocation (LDA). The fitted model can be used to estimate the similarity between documents as well as between a set of specified keywords using an additional layer of latent variables which are referred to as topics.  
 Depends: 
     R (>= 2.10)
 License: GPL-3

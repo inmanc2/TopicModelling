@@ -1,3 +1,8 @@
+---
+output:
+  pdf_document: default
+  html_document: default
+---
 title: "Topic Modelling"
 author: "Josh", "Callen", "Alana"
 date: "`r Sys.Date()`"
@@ -10,7 +15,7 @@ vignette: >
 
 # LDA Topic Modelling 
 
-In machine learning and natural language processing, topic models are generative models which provide a framework or term frequency occurrences in a given selection of documents (e.g.,news articles, documents, social media texts). The Latent Dirichlet allocation (LDA) model is a Bayesian mixture model for discrete data where topics are assumed to be uncorrelated. It is the most widely used type of topic model for analyses of textual data. LDA is ideally suited for clustering or grouping observations in text documents. 
+In machine learning and natural language processing, topic models are generative models which provide a framework or term frequency occurrences in a given selection of documents (e.g.,news articles, documents, social media texts). The Latent Dirichlet Allocation (LDA) model is a Bayesian mixture model for discrete data where topics are assumed to be uncorrelated. It is the most widely used type of topic model for analyses of textual data. LDA is ideally suited for clustering or grouping observations in text documents. 
 
 The LDA topic model is packaged in "TopicModelling" using estimation and inference algorithms. LDA topic modeling reveals a series of topics, each comprising of keywords with a statistically high probability fo co-occurrence, and the proportion of use of each topic within the corpus. 
 
