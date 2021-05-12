@@ -1,0 +1,74 @@
+title: "Topic Modelling"
+author: "Josh", "Callen", "Alana"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{my-vignette}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+# LDA Topic Modelling 
+
+In machine learning and natural language processing, topic models are generative models which provide a framework or term frequency occurrences in a given selection of documents (e.g.,news articles, documents, social media texts). The Latent Dirichlet allocation (LDA) model is a Bayesian mixture model for discrete data where topics are assumed to be uncorrelated. It is the most widely used type of topic model for analyses of textual data. LDA is ideally suited for clustering or grouping observations in text documents. 
+
+The LDA topic model is packaged in "TopicModelling" using estimation and inference algorithms. LDA topic modeling reveals a series of topics, each comprising of keywords with a statistically high probability fo co-occurrence, and the proportion of use of each topic within the corpus. 
+
+The following document will provide an example of topic modeling using the functions present in the "TopicModelling" package to generate themes in a tweet dataset about ballot harvesting, trump taxas, and scotus, scrapped from Twitter in 2020. 
+
+# Loading the package and importing the tweet data. 
+
+```{r}
+library(tidyverse)
+library(tidytext)
+library(TopicModelling)
+
+tweet_data <- tweets.2020 %>%
+  select(user_id, status_id, screen_name, text, retweet_count, verified)
+
+```
+
+# Pre-processing
+
+Within the example data set there are many tweets which consist of irrelevant information that will add unnecessary noise to our data set which we need to remove before starting any analysis. 
+
+First, the tweets contain hyperlinks that are not of our interest in this analysis. This step will remove all the URLs using function "str_replace_all" from {stringr} contained in {tidyverse}. 
+
+``` {r}
+tweet_data$text <- str_replace_all(tweet_data$text, " ?(f|ht)tp(s?)://(.*)[.][a-z]+", "")
+```
+
+Then, stop words such as "the", "would", and so forth add no value to our inferred topics. We remove them by building a custom dictionary of stop words and binds it to an already existing list of stop words in tidytext (stop_words).
+
+```{r}
+final_stop <- data.frame(word = c("said", "u", "0001f6a8", "illvi9k4pg", "https", "t.co", "video"), lexicon = "custom") %>%
+  rbind(stop_words)
+```
+
+Finally, for LDA modeling, we need the data to be in a document-term matrix. In doing so, we process our data using cast_dtm() function in the {tidytext} package to prepare our document-term matrix.
+
+```{r}
+tweet_dtm <- tweet_data %>%
+  unnest_tokens(word, text) %>% #tokenize the corpus
+  anti_join(final_stop, by = "word") %>% #remove the stop words
+  count(status_id, word) %>% #count the number of times a word is used per status_id
+  cast_dtm(status_id, word, n) #creates a document-term matrix
+
+tweet_dtm
+```
+
+# Generate a Topic Model
+
+Now we use the LDA() function in our {TopicModelling} package to detect the underlying themes a build a LDA topic model. To demonstrate the mode, we subjectively categorize our data into 6 topics (k = 6). We then need to define which model to use, either "VEM" or "Gibbs". Gibbs sampling is a Markov Chain Monte Carlo algorithm for obtaining approximate sampling of the posterior when direct sampling is not possible. While VEM sampling is an iterative expectation algorithm that maximizes the likelihood by minimizing the entropy of the true posterior distribution. Each method may produce slightly different results, for this example we use the VEM method. 
+
+To be able to replicate the topic model results in the future, it's important to set a consistent seed. To demonstrate, we set seed = 2021 instead of letting R randomly generate one.
+
+The LDA function may take a while to run via the machine learning model. After getting the results, you can use "save.image(file = "")" to save all the observations including the topic model results and load it next time.
+
+```{r}
+set.seed(2021)
+tweet_lda <- LDA(tweet_dtm, k = 6, method = "VEM")
+tweet_lda
+```
+
+
