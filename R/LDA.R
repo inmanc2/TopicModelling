@@ -1,7 +1,7 @@
-#' @name LDA
-#' @alias LDA
-#' @title Latent Dirichlet Allocation (LDA)
-#' @description Estimate a LDA model using either a VEN algorithm or Gibbs sampling.
+#' Latent Dirichlet Allocation (LDA)
+#'
+#' Estimate a LDA model using either a VEN algorithm or Gibbs sampling.
+#'
 #' @usage (x, k, method = "VEM", control = NULL, model = NULL, ...)
 #' @param x Any object coercible to such simple triplet matrices (with count entries),
 #' @param k Integer; number of topics
@@ -12,7 +12,10 @@
 #' @examples
 #' LDA(x, k, method = "VEM", control = NULL, model = NULL)
 #' @keywords LDA
-#' @export
+#'
+#' @useDynLib TopicModelling, .registration = TRUE, .fixes = "C_"
+#' @importFrom Rcpp sourceCpp
+
 
 match_terms <- function(x, model) {
   if (!(is.null(model@terms) | is.null(colnames(x)))) {
@@ -29,6 +32,7 @@ match_terms <- function(x, model) {
 LDA_registry <- list(LDA_VEM.fit = c("VEM", "LDA_VEM", "LDA_VEM.fit"),
                      LDA_Gibbs.fit = c("Gibbs", "LDA_Gibbs", "LDA_Gibbs.fit"))
 
+#' @export
 LDA <- function(x, k, method = "VEM", control = NULL, model = NULL, ...)
 {
   if (is(x, "DocumentTermMatrix")) {

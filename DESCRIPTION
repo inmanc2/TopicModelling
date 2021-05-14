@@ -7,11 +7,11 @@ Authors@R: c(person("Alana", "Pengilley",
            email = "apengilley@utexas.edu", 
            comment = c(ORCID = "0000-0002-9783-6052")),
            person("Josh", "Xiao",
-           role = c("aut", "cre"),
+           role = c("aut"),
            email = "wjxiao@utexas.edu"),
            person("Callen", "Inman",
-           role = c("aut", "cre"),
-           email = "callen.inman@utexas.edu")
+           role = c("aut"),
+           email = "callen.inman@utexas.edu"))
 Maintainer: Alana Pengilley <apengilley@utexas.edu>
 Description: This package allows the probabilistic modelling of term frequency occurences in documents using Latent Dirichlet Allocation (LDA). The fitted model can be used to estimate the similarity between documents as well as between a set of specified keywords using an additional layer of latent variables which are referred to as topics.  
 Depends: 
@@ -25,4 +25,7 @@ Suggests:
     knitr
 VignetteBuilder: knitr
 Imports: 
+    Rcpp,
     slam
+LinkingTo: 
+    Rcpp

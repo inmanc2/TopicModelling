@@ -1,7 +1,7 @@
 ---
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
 title: "Topic Modelling"
 author: "Josh", "Callen", "Alana"
@@ -17,9 +17,9 @@ vignette: >
 
 In machine learning and natural language processing, topic models are generative models which provide a framework or term frequency occurrences in a given selection of documents (e.g.,news articles, documents, social media texts). The Latent Dirichlet Allocation (LDA) model is a Bayesian mixture model for discrete data where topics are assumed to be uncorrelated. It is the most widely used type of topic model for analyses of textual data. LDA is ideally suited for clustering or grouping observations in text documents. 
 
-The LDA topic model is packaged in "TopicModelling" using estimation and inference algorithms. LDA topic modeling reveals a series of topics, each comprising of keywords with a statistically high probability fo co-occurrence, and the proportion of use of each topic within the corpus. 
+The LDA topic model is packaged in "TopicModelling" using estimation and inference algorithms. LDA topic modeling reveals a series of topics, each comprising of keywords with a statistically high probability of co-occurrence, and the proportion of use of each topic within the corpus. In addition, the "TopicModelling" package includes a way of organizing data with a Document Term Matrix (DTM), a matrix that describes the frequency of terms that occur in a collection of bodies of text ("documents). In a DTM, rows represent specific bodies of text, and columns represent keywords. 
 
-The following document will provide an example of topic modeling using the functions present in the "TopicModelling" package to generate themes in a tweet dataset about ballot harvesting, trump taxas, and scotus, scrapped from Twitter in 2020. 
+The following document will provide an example of topic modeling using the functions present in the "TopicModelling" package to generate themes in a tweet dataset about ballot harvesting, Trump's taxes, and SCOTUS, scraped from Twitter in 2020. 
 
 # Loading the package and importing the tweet data. 
 
@@ -50,7 +50,9 @@ final_stop <- data.frame(word = c("said", "u", "0001f6a8", "illvi9k4pg", "https"
   rbind(stop_words)
 ```
 
-Finally, for LDA modeling, we need the data to be in a document-term matrix. In doing so, we process our data using cast_dtm() function in the {tidytext} package to prepare our document-term matrix.
+# Create a Document-Term Matrix
+
+Finally, for LDA modeling, we need the data to be in a document-term matrix. In doing so, we process our data using cast_dtm() function in our {TopicModelling} package. We tokenized our text into individual words (unnest_tokens), remove "stop" words (mostly prepositions in articles) using the anti_join() function, and count the number of times a word is used per block of text (status_id) using the count() function. Finally, we use our {TopicModelling} cast_dtm function to create a document-term matrix with these specifications.
 
 ```{r}
 tweet_dtm <- tweet_data %>%
@@ -72,7 +74,7 @@ The LDA function may take a while to run via the machine learning model. After g
 
 ```{r}
 set.seed(2021)
-tweet_lda <- LDA(tweet_dtm, k = 6, method = "VEM")
+tweet_lda <- topicmodels::LDA(tweet_dtm, k = 6, method = "VEM")
 tweet_lda
 ```
 
@@ -84,3 +86,75 @@ In a topic model, a topic contains a list of words. Each word has a beta value a
 
 To extract the information of beta value, we use the tidy() function.
 
+```{r}
+topics <- tidy(tweet_lda, matrix="beta")
+```
+
+Then, to demonstrate, we subjectively decide to focus on the top 10 words in the 8 topics. We use the split-apply-combine pattern by clustering the words by topic (“split”), indicating the top 10 words (“apply”), and then use ungroup() to remove the grouping variable (“combine”).
+
+```{r}
+top_terms <- topics %>% 
+  group_by(topic) %>% #groups by topic
+  top_n(10, beta) %>% #takes the words with the top 10 beta scores
+  ungroup() #ungroups the topic
+top_terms
+```
+
+To visualize, we use ggplot and illustrate the words in each topic with their associated beta value.
+
+As shown below, the topics differ slightly from each another. The words ranked by beta size provide interpreters a sense of what this topic should be. However, when topics share much similarity, this might suggest that these topics can be combined as we interpret them.
+
+This visualization shows us the most meaningful words in a topic.
+
+```{r}
+top_terms %>% 
+  ggplot(aes(x = reorder_within(term, beta, topic, sep = "_"), 
+             y =  beta, 
+             fill = factor(topic))) +
+  geom_bar(stat = 'identity', show.legend = FALSE) +
+  facet_wrap(~ topic, scales = "free") + 
+  scale_x_discrete(labels = function(x) gsub("_.+$", "", x)) +
+  coord_flip()
+```
+
+# Visualizing Gamma values
+
+After identifying possible topics, we move onto classifying the documents. For this, we need to look at the gamma matrix.
+
+Like beta, we extract gamma values using the tidy() function.
+
+In this data frame, each row has the document ID (namely, the tweet), the gamma number, and the topic. When a gamma score is higher, this suggests that a document’s content is predominantly in one topic as opposed to another.
+
+```{r}
+topics_doc <- tidy(tweet_lda, matrix="gamma") 
+```
+
+Then, to assign a topic to each document, we choose the topic with the highest gamma for each document.
+
+In doing so, we use the slice_max() function in dplyr, which will subset the rows with the largest gamma (per document).
+
+```{r}
+toptopics <- topics_doc %>%
+  group_by(document) %>%
+  slice_max(gamma)
+
+colnames(toptopics)[1] <- "status_id"
+colnames(toptopics)[2] <- "topics"
+toptopics$status_id <- as.numeric(toptopics$status_id)
+```
+
+Next, we join this data with the full tweet data using full_join(). Importantly, to proceed this process, the document id should be the same id as the status_id in the tweet data frame. 
+
+When we ran the LDA function, this id turned into a character, here we need to make sure to turn it back into a numeric, which is how status_id is stored in the tweet_data.
+
+```{r}
+tweet_data2 <- full_join(tweet_data, toptopics, by = "status_id")
+```
+
+Finally, We plot this information to see which topics have been assigned to the most articles.
+
+```{r}
+table(tweet_data2$topics) %>% as.data.frame() %>%
+  ggplot(aes(x = Var1, y = Freq)) +
+    geom_bar(stat = "identity")
+```
