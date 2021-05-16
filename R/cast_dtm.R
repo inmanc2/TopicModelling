@@ -30,6 +30,8 @@
 #' cast_sparse(dat, a, b, val)
 #'
 #' @import Matrix
+#' @import dplyr
+#' @import tm
 #' @export
 
 cast_sparse <- function(data, row, column, value, ...) {
@@ -49,7 +51,7 @@ cast_sparse <- function(data, row, column, value, ...) {
     value_col <- quo_name(value_col)
     values <- data[[value_col]]
   }
-  
+
   # if it's a factor, preserve ordering
   if (is.factor(row_names)) {
     row_u <- levels(row_names)
@@ -58,7 +60,7 @@ cast_sparse <- function(data, row, column, value, ...) {
     row_u <- unique(row_names)
     i <- match(row_names, row_u)
   }
-  
+
   if (is.factor(col_names)) {
     col_u <- levels(col_names)
     j <- as.integer(col_names)
@@ -66,12 +68,12 @@ cast_sparse <- function(data, row, column, value, ...) {
     col_u <- unique(col_names)
     j <- match(col_names, col_u)
   }
-  
+
   ret <- Matrix::sparseMatrix(
     i = i, j = j, x = values,
     dimnames = list(row_u, col_u), ...
   )
-  
+
   ret
 }
 

@@ -8,7 +8,7 @@ author: "Josh", "Callen", "Alana"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{my-vignette}
+  %\VignetteIndexEntry{Topic Modelling}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -26,6 +26,7 @@ The following document will provide an example of topic modeling using the funct
 ```{r}
 library(tidyverse)
 library(tidytext)
+library(topicmodels)
 library(TopicModelling)
 
 tweet_data <- tweets.2020 %>%
@@ -66,7 +67,7 @@ tweet_dtm
 
 # Generate a Topic Model
 
-Now we use the LDA() function in our {TopicModelling} package to detect the underlying themes a build a LDA topic model. To demonstrate the mode, we subjectively categorize our data into 6 topics (k = 6). We then need to define which model to use, either "VEM" or "Gibbs". Gibbs sampling is a Markov Chain Monte Carlo algorithm for obtaining approximate sampling of the posterior when direct sampling is not possible. While VEM sampling is an iterative expectation algorithm that maximizes the likelihood by minimizing the entropy of the true posterior distribution. Each method may produce slightly different results, for this example we use the VEM method. 
+Now we use the LDA() function in our {TopicModelling} package to detect the underlying themes a build a LDA topic model. To demonstrate the mode, we subjectively categorize our data into 8 topics (k = 8). We then need to define which model to use, either "VEM" or "Gibbs". Gibbs sampling is a Markov Chain Monte Carlo algorithm for obtaining approximate sampling of the posterior when direct sampling is not possible. While VEM sampling is an iterative expectation algorithm that maximizes the likelihood by minimizing the entropy of the true posterior distribution. Each method may produce slightly different results, for this example we use the VEM method. 
 
 To be able to replicate the topic model results in the future, it's important to set a consistent seed. To demonstrate, we set seed = 2021 instead of letting R randomly generate one.
 
@@ -74,8 +75,9 @@ The LDA function may take a while to run via the machine learning model. After g
 
 ```{r}
 set.seed(2021)
-tweet_lda <- topicmodels::LDA(tweet_dtm, k = 6, method = "VEM")
+tweet_lda <- LDA(tweet_dtm, k = 8, method = "VEM")
 tweet_lda
+
 ```
 
 # Visualizing beta values 
@@ -93,11 +95,14 @@ topics <- tidy(tweet_lda, matrix="beta")
 Then, to demonstrate, we subjectively decide to focus on the top 10 words in the 8 topics. We use the split-apply-combine pattern by clustering the words by topic (“split”), indicating the top 10 words (“apply”), and then use ungroup() to remove the grouping variable (“combine”).
 
 ```{r}
+
 top_terms <- topics %>% 
   group_by(topic) %>% #groups by topic
   top_n(10, beta) %>% #takes the words with the top 10 beta scores
   ungroup() #ungroups the topic
-top_terms
+
+
+
 ```
 
 To visualize, we use ggplot and illustrate the words in each topic with their associated beta value.
