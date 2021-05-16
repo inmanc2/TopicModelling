@@ -13,7 +13,7 @@ Authors@R: c(person("Alana", "Pengilley",
            role = c("aut"),
            email = "callen.inman@utexas.edu"))
 Maintainer: Alana Pengilley <apengilley@utexas.edu>
-Description: This package allows the probabilistic modelling of term frequency occurrences in documents using Latent Dirichlet Allocation (LDA). The fitted model can be used to estimate the similarity between documents as well as between a set of specified keywords using an additional layer of latent variables which are referred to as topics.  
+Description: This package provides supporting functions to be run alongside LDA modeling in order to produce a probabilitic modeling of term frequency occurrences in documents using Latent Dirichlet Allocation (LDA). The fitted model can be used to estimate the similarity between documents as well as between a set of specified keywords using an additional layer of latent variables which are referred to as topics.  
 Depends: 
     R (>= 2.10)
 License: GPL-3
