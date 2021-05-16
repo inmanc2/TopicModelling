@@ -60,7 +60,7 @@ tweet_dtm <- tweet_data %>%
   unnest_tokens(word, text) %>% #tokenize the corpus
   anti_join(final_stop, by = "word") %>% #remove the stop words
   count(status_id, word) %>% #count the number of times a word is used per status_id
-  cast_dtm(status_id, word, n) #creates a document-term matrix
+  TopicModelling:cast_dtm(status_id, word, n) #creates a document-term matrix
 
 tweet_dtm
 ```
